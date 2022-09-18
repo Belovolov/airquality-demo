@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  db:
+    image: mariadb
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: p4ssw0rd
+      MYSQL_DATABASE: airdata_1
+    ports:
+    - "23306:3306"
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.Api
+    environment:
+    - DB_HOST=db
+    - DB_PORT=3306
+    - DB_USER=root
+    - DB_PASSWORD=p4ssw0rd
+    depends_on: [ db ]
+    ports: [ "10300:3000" ]
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.App
+    depends_on: [ api ]
+    ports: [ "18080:8080" ]

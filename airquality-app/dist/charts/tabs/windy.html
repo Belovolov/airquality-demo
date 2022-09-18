@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
+  <style type="text/css">
+    #windyty {
+      height: 500px;
+      width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+      margin-top: 50px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="windyty"></div>
+
+  <p>Displayed parameters:<span id="state"></span></p>
+  <p>Overlays: <span id="overlays"> <a>wind</a> <a>temp</a> <a>pressure</a> <a>clouds</a> <a>rh</a> <a>gust</a>
+      <a>lclouds</a> <a>waves</a> <a>swell</a> <a>wwaves</a> <a>swellperiod</a> <a>sst</a> <a>sstanom</a>
+      <a>currents</a> </span></p>
+
+  <p>Levels: <span id="levels"><a>surface</a> <a>975h</a> <a>950h</a> <a>925h</a> <a>900h</a> <a>850h</a> <a>750h</a>
+      <a>700h</a> <a>550h</a> <a>450h</a> <a>350h</a> <a>300h</a> <a>250h</a> <a>200h</a> <a>150h</a> </span></p>
+  <br />
+  <script type="text/javascript">
+
+    var windytyInit = {
+      key: 'PsL-At-XpsPTZexBwUkO7Mx5I',
+      lat: 36, lon: -102, zoom: 5,
+    }
+
+    function windytyMain(map) {
+
+      var url = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}';
+      baseLayer = L.tileLayer(url, {
+        attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
+        tileSize: 512,
+        maxZoom: 18,
+        zoomOffset: -1,
+        id: 'mapbox/streets-v11',
+        accessToken: 'pk.eyJ1IjoicmJlbG92b2xvdiIsImEiOiJjbDg2eHFhNTQxMDV3M3dvZTMwMzRsdjFuIn0.IcSCPfoNmvys4Y5fpPbCAg'
+      });
+
+      //baseLayer.addTo(map);
+
+      var layers = [];
+      map.eachLayer(function (layer) {
+        if (layer instanceof L.TileLayer) {
+          layer._url = url;
+          layer.options.maxZoom = 18;
+          layers.push(layer);
+          console.log(layer);
+        }
+
+
+      });
+
+      var baseMaps = {
+        "Grayscale": baseLayer,
+        "Streets": layers[0]
+      };
+
+      L.control.layers(baseMaps).addTo(map);
+
+
+      // html elements
+      var
+        overlays = document.getElementById('overlays'),
+        levels = document.getElementById('levels'),
+        state = document.getElementById('state');
+
+      // Handle change of overlay
+      overlays.onclick = function (event) {
+        W.setOverlay(event.target.innerHTML)
+      }
+
+      // Handle change of level
+      levels.onclick = function (event) {
+        W.setLevel(event.target.innerHTML);
+      }
+
+      // Display actual state of a map
+      W.on('redrawFinished', function (displayedParams) {
+        state.innerHTML = displayedParams.overlay + ', ' + displayedParams.level;
+      })
+    }
+  </script>
+
+
+  <script async defer src="https://api.windytv.com/v2.3/boot.js"></script>
+</body>
+
+</html>

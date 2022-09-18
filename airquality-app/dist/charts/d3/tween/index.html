@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis {
+  display: none;
+}
+
+</style>
+<body>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+var margin = {top: 20, right: 30, bottom: 20, left: 30},
+    width = 500 - margin.left - margin.right,
+    height = 700 - margin.top - margin.bottom;
+
+var formatPercent = d3.format(".3s");
+
+var x = d3.scaleLinear()
+    .range([0, width]);
+
+var y = d3.scaleBand()
+      .rangeRound([height, 0])
+      .padding(0.3)
+      .round(0.3);
+
+var xAxis = d3.axisBottom(x)
+    .tickFormat(formatPercent);
+
+var yAxis = d3.axisLeft(y)
+    .tickSize(0);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.csv("data.csv", function(error, data) {
+
+  data.forEach(function(d) {
+    d.frequency = +d.frequency;
+  });
+
+  x.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+  y.domain(data.map(function(d) { return d.letter; }));
+
+
+  var bar = svg.selectAll(".bar")
+      .data(data)
+    .enter().append("g")
+      .attr("class", "bar");
+
+  bar.append("rect")
+      .attr("y", function(d) { return y(d.letter); })
+      .attr("height", y.bandwidth())
+      .attr("width", 0)
+      .style("fill","#1a9850");
+
+  bar.append("text")
+      .attr("x", 5)
+      .attr("y", function(d) { return y(d.letter) + y.bandwidth()/2 + 3; })
+      .text(formatPercent(1));
+
+  bar.selectAll("rect").transition().ease(d3.easeQuad).duration(2000).delay(0).attr("width", function(d) { return x(d.frequency); });
+
+
+  bar.selectAll("text")
+  .transition()
+  .ease(d3.easeQuad)
+  .duration(2000)
+  .delay(0)
+  .attr("x", function(d) { return x(d.frequency) + 3; })
+  .tween("text", function(d) {
+    var that = d3.select(this);
+    var i = d3.interpolate(0, d.frequency);
+    return function(t) {
+   that.text(formatPercent(i(t)));
+    };
+  });
+
+
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .selectAll("text")
+      .style("font-weight","bold");
+
+  d3.select(self.frameElement).style("height", (height + margin.top + margin.bottom) + "px");
+
+});
+</script>

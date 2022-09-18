@@ -1,0 +1,35 @@
+<html>
+	<body style='font-family:arial'>
+	<style type="text/css">
+		tr.head {
+			background-color: #FFFFFF;
+			font-weight: bold;
+		}
+		tr.even {background-color: #EEEEEE}
+		tr.odd {background-color: #FFFFFF}
+	</style>
+
+	<table>
+		<tr class="head">
+			<% Object.keys(rows[0]).forEach(function(currentValue) { %>
+					<td><%=currentValue%></td>
+			<% }) %>
+		</tr>
+
+		<% for (var i=0; i<rows.length; i++) { %>
+			<% if (i%2 == 1) { %>
+				<tr class="odd">
+			<% } else { %>
+				<tr class="even">
+			<% } %>
+
+			<% for (var prop in rows[i]) { %>
+				<td><%=rows[i][prop]%></td>
+			<% } %>
+			</tr>
+		<%}%>
+
+		<tr><th colspan="7"></th></tr>
+	</table>
+	</body>
+</html>

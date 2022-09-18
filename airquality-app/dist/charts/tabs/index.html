@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      font-family: "Lato", sans-serif;
+    }
+
+    /* Style the tab */
+    .tab {
+      float: left;
+      border: 1px solid #ccc;
+      background-color: #f1f1f1;
+      width: 20%;
+      height: 300px;
+    }
+
+    /* Style the buttons inside the tab */
+    .tab button {
+      display: block;
+      background-color: inherit;
+      color: black;
+      padding: 10px 8px;
+      width: 100%;
+      border: none;
+      outline: none;
+      text-align: left;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 17px;
+    }
+
+    /* Change background color of buttons on hover */
+    .tab button:hover {
+      background-color: #ddd;
+    }
+
+    /* Create an active/current "tab button" class */
+    .tab button.active {
+      background-color: #ccc;
+    }
+
+    /* Style the tab content */
+    .tabcontent {
+      float: left;
+      padding: 0px 12px;
+      border: 1px solid #ccc;
+      width: 70%;
+      border-left: none;
+      height: 100px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <p>Click on the buttons inside the tabbed menu:</p>
+
+  <div class="tab" , id="tabs">
+    <button class="tablinks" onclick="openCity(event, 'London')" id="defaultOpen">London</button>
+    <button class="tablinks" onclick="openCity(event, 'Paris')">Paris</button>
+    <button class="tablinks" onclick="openCity(event, 'Tokyo')">Tokyo</button>
+  </div>
+
+  <div id="London" class="tabcontent">
+    <h3>London</h3>
+    <p>London is the capital city of England.</p>
+  </div>
+
+  <div id="Paris" class="tabcontent">
+    <h3>Paris</h3>
+    <p>Paris is the capital of France.</p>
+  </div>
+
+  <div id="Tokyo" class="tabcontent">
+    <h3>Tokyo</h3>
+    <p>Tokyo is the capital of Japan.</p>
+  </div>
+
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script>
+
+    //var data_url = 'http://localhost:10300/KiWIS/KiWIS?service=kisters&type=queryServices&request=getTimeseriesValues&datasource=1&format=csv&csvdiv=,&ts_id=' +ts_id+'&period=p7d';
+    // var data_url = 'http://localhost:10300/KiWIS/KiWIS?service=kisters&type=queryServices&request=getTimeseriesValues&datasource=1&format=csv&csvdiv=,&ts_id=38080&period=p7d';
+    // var data_url = 'http://localhost:10300/KiWIS/KiWIS?service=kisters&type=queryServices&request=getTimeseriesValues&datasource=0&format=csv&csvdiv=,&ts_id=648710~Rainfall.RAW&to=1992-10-01T00:00:00.000+12:00&period=p30d';
+    //var data_url = 'http://localhost:10300/KiWIS/KiWIS?service=kisters&type=queryServices&request=getTimeseriesValues&datasource=1&format=csv&csvdiv=,&ts_id=13690&period=p1d';
+    //append_chart("chartstable",data_url,parametertype_name,0,ts_id);
+
+    get_all_parameters();
+    //get_all_stations(data_url);
+
+    //get_all_ts1h_for_parametername("PM10");
+
+    //get_all_lastest_values_of_ts1h_for_parametername("PM10_RAW");
+
+    function get_all_lastest_values_of_ts1h_for_parametername(parametertype_name) {
+      var url = 'http://localhost:10300/KiWIS/KiWIS?service=kisters&type=queryServices&request=getTimeseriesList&&datasource=1&format=objson&ts_name=*1H&parametertype_name=' + parametertype_name;
+      console.log(url);
+      d3.json(url, function (data) {
+        for (var key in data)
+          console.log(data[key]);
+        var ts_id_list = data.map(function (d) { return d.ts_id; });
+        console.log(ts_id_list.join());
+        var url = 'http://localhost:10300/KiWIS/KiWIS?service=kisters&type=queryServices&request=getTimeseriesValueLayer&&datasource=1&format=objson&ts_id=' + ts_id_list.join() + '&metadata=true';
+        console.log(url);
+        d3.json(url, function (data) {
+          //process all the return values;
+          for (var key in data)
+            console.log(data[key]);
+        }
+        );
+
+        return data;
+      }
+      );
+
+    }
+
+    function get_all_ts1h_for_parametername(parametertype_name) {
+      var url = 'http://localhost:10300/KiWIS/KiWIS?service=kisters&type=queryServices&request=getTimeseriesList&&datasource=1&format=objson&ts_name=*1H&parametertype_name=' + parametertype_name;
+      console.log(url);
+      d3.json(url, function (data) {
+        for (var key in data)
+          console.log(data[key]);
+        var ts_id_list = data.map(function (d) { d.ts_id });
+        console.log(ts_id_list);
+        return data;
+      }
+      );
+
+
+    }
+
+    function get_all_stations() {
+      var url = 'http://localhost:10300/KiWIS/KiWIS?service=kisters&type=queryServices&request=getStationList&datasource=1&format=objson';
+      d3.json(url, function (data) {
+        console.log(data);
+      });
+
+    }
+
+    function get_all_parameters() {
+      var url = 'http://localhost:10300/KiWIS/KiWIS?service=kisters&type=queryServices&request=getTimeseriesList&&datasource=1&format=objson&ts_name=*&parametertype_name=*';
+      console.log(url);
+      d3.json(url, function (data) {
+        console.log(data);
+        console.log(data.map(function (d) { return d.station_no; }));
+        console.log(temp = d3.set(data.map(function (d) { return d.parametertype_name; })).values());
+        temp = temp.sort();
+        for (var i = 0; i < temp.length; i++) {
+          console.log(temp[i]);
+          //  append_new_tab(temp[i]);
+        }
+
+        console.log(temp);
+        return data;
+      });
+    }
+
+
+
+
+    function append_new_tab(text) {
+      d3.select("#tabs").append("button")
+        .text(text);
+
+    }
+
+    function openCity(evt, cityName) {
+      var i, tabcontent, tablinks;
+      tabcontent = document.getElementsByClassName("tabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+      tablinks = document.getElementsByClassName("tablinks");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      document.getElementById(cityName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+
+    // Get the element with id="defaultOpen" and click on it
+    document.getElementById("defaultOpen").click();
+  </script>
+
+</body>
+
+</html>

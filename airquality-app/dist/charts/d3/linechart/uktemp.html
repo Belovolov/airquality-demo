@@ -1,0 +1,36 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+	    <title>UK Temperature History</title>
+	    <link rel="stylesheet" href="css/reset.css">
+	    <link rel="stylesheet" href="css/style.css">
+	    <script src="js/modernizr.js"></script>
+	</head>
+
+	<body>
+		<div id="chart">
+			<svg>
+			</svg>
+		</div>
+		<div id="widgets">
+
+			<div id="menu">
+			</div>
+			<div id="info">
+			</div>
+
+
+		<script src="http://charts.animateddata.co.uk/uktemperaturelines/js/jquery-1.10.2.min.js"></script>
+		<script src="http://d3js.org/d3.v3.min.js" language="JavaScript"></script>
+		<script src="js/underscore-min.js"></script>
+    <script type="text/javascript">
+      Modernizr.load({
+        test: Modernizr.svg,
+        yep: 'js/temperature.js',
+        nope: ['js/jquery-1.10.2.min.js', 'js/fallback.js']
+      });
+    </script>
+	</body>
+</html>

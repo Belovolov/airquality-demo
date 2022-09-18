@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+.area {
+  fill: steelblue;
+  clip-path: url(#clip);
+}
+
+.selection {
+  fill: red;
+}
+
+.zoom {
+  cursor: move;
+  fill: none;
+  pointer-events: all;
+}
+</style>
+
+<div>hehe</div>
+<div id="chartstable"></div>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="brush.js"></script>
+<script>
+//var data_url ="PM Datasets.csv";
+ts_id = 38120;
+var parametertype_name = "a very good title";
+var data_url = 'http://localhost:10300/KiWIS/KiWIS?service=kisters&type=queryServices&request=getTimeseriesValues&datasource=1&format=csv&csvdiv=,&ts_id=' +ts_id+'&period=p7d';
+var data_url = 'http://localhost:10300/KiWIS/KiWIS?service=kisters&type=queryServices&request=getTimeseriesValues&datasource=1&format=csv&csvdiv=,&ts_id=38080&period=p7d';
+var data_url = 'http://localhost:10300/KiWIS/KiWIS?service=kisters&type=queryServices&request=getTimeseriesValues&datasource=0&format=csv&csvdiv=,&ts_id=648710~Rainfall.RAW&to=1992-10-01T00:00:00.000+12:00&period=p30d';
+//var data_url = 'http://localhost:10300/KiWIS/KiWIS?service=kisters&type=queryServices&request=getTimeseriesValues&datasource=1&format=csv&csvdiv=,&ts_id=13690&period=p1d';
+//var data_url = 'http://localhost:10300/KiWIS/KiWIS?service=kisters&type=queryServices&request=getTimeseriesList&&datasource=1&format=objson&ts_name=*&parametertype_name=*';
+var d = new Date();
+console.log(d);
+var dbefore = d3.timeDay.offset(d,-7);
+var dafter = d3.timeDay.offset(d, 6);
+console.log(dbefore);
+console.log(dafter);
+console.log(d3.timeDay.count(dbefore, d));
+console.log(d3.timeDay.count(dafter, d));
+append_chart("chartstable",data_url,parametertype_name,0,ts_id);
+//return;
+//console.log(data_url);
+//parse_data(data_url);
+
+function parse_data(url)
+{
+  d3.json(url, function(data){
+     console.log(data);
+     console.log(data.map(function(d) { return d.station_no; }));
+     console.log(d3.set(data.map(function(d) { return d.parametertype_name; })).values());
+
+     var temp = d3.map(data, function(d){
+    //   console.log(d);
+       return d.station_no;}
+     );
+     console.log(temp);
+     return data;});
+
+}
+
+
+</script>
